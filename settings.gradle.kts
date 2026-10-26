@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "compass_gpt"
+rootProject.name = "compass_cat"
 include(":app")

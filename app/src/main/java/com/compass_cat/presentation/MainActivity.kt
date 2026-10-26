@@ -1,4 +1,4 @@
-package com.compass_gpt.presentation
+package com.compass_cat.presentation
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -18,7 +18,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.wear.ambient.AmbientLifecycleObserver
-import com.compass_gpt.R
+import com.compass_cat.R
 import com.google.android.gms.location.*
 import java.text.SimpleDateFormat
 import java.util.Calendar

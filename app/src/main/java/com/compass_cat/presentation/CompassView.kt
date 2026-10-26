@@ -1,4 +1,4 @@
-package com.compass_gpt.presentation
+package com.compass_cat.presentation
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -17,7 +17,7 @@ import android.view.View
 import android.view.animation.AccelerateInterpolator
 import androidx.core.graphics.toColorInt
 import androidx.core.graphics.withRotation
-import com.compass_gpt.R
+import com.compass_cat.R
 import kotlin.math.*
 import kotlin.random.Random
 

@@ -1,4 +1,4 @@
-package com.compass_gpt.presentation.theme
+package com.compass_cat.presentation.theme
 
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material.MaterialTheme

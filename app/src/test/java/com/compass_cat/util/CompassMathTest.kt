@@ -1,4 +1,4 @@
-package com.compass_gpt.util
+package com.compass_cat.util
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

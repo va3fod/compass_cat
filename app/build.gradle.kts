@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.compass_gpt"
+    namespace = "com.compass_cat"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.compass_gpt"
+        applicationId = "com.compass_cat"
         minSdk = 34
         targetSdk = 35
         versionCode = 9
