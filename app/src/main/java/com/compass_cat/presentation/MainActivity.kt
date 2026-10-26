@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private var currentSensorAccuracy: Int = SensorManager.SENSOR_STATUS_UNRELIABLE
     private var bezelRotationDeg = 0f
     private var isAmbient = false
+    private var isResumedState = false
 
     // --- Location ---
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -128,6 +129,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
+        isResumedState = true
         updateBatteryOptimizationState()
 
         // FORCE a redraw when returning from a paused state (like dismissing a permission dialog)
@@ -140,11 +142,14 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
     override fun onPause() {
         super.onPause()
+        isResumedState = false
         sensorManager.unregisterListener(this)
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
     private fun updateBatteryOptimizationState() {
+        // Ambient callbacks can arrive while paused; never re-register sensors/GPS then.
+        if (!isResumedState) return
         if (isAmbient) {
             sensorManager.unregisterListener(this)
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

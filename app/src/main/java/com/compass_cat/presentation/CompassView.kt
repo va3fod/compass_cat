@@ -520,7 +520,9 @@ class CompassView @JvmOverloads constructor(
 
             // The magnetic heading is the filtered azimuth from MainActivity (filteredAzimuthDeg)
             // To show North at the top, we rotate the rose by -heading.
-            canvas.withRotation(-magneticNeedleDeg) {
+            // In ambient mode the rotation sensor is unregistered, so the heading is stale.
+            // Don't draw north markers that would silently point the wrong way.
+            if (!isAmbientMode) canvas.withRotation(-magneticNeedleDeg) {
                 // Draw Magnetic North Marker (RED Triangle) at 0 degrees on the rotating rose
                 drawNorthMarker(this, edgeRadius, magneticNeedlePaint)
 
@@ -538,10 +540,12 @@ class CompassView @JvmOverloads constructor(
                 // If showTrueNorth is true, we display headings relative to True North
                 // TrueHeading = MagneticHeading + Declination
                 // If MagneticHeading is 0 and Declination is -10, TrueHeading is -10 (350).
+                // Location.bearingTo() returns a TRUE-north bearing, so it must always be
+                // compared against the true heading, regardless of the M/T display mode.
+                // (Using the magnetic heading here skewed the needle by the declination.)
                 val trueHeading = (((magneticNeedleDeg + declDeg) + 360f) % 360f)
-                val currentReferenceHeading = if (showTrueNorth) trueHeading else magneticNeedleDeg
                 waypointBearing?.let { wpBearing ->
-                    canvas.withRotation(-(currentReferenceHeading - wpBearing)) {
+                    canvas.withRotation(-(trueHeading - wpBearing)) {
                         drawGoToNeedle(this, mainRadius, goToNeedlePaint)
                     }
                 }
@@ -617,14 +621,14 @@ class CompassView @JvmOverloads constructor(
         }
     }
 
+    private val warningPaint = Paint().apply { textAlign = Paint.Align.CENTER; isAntiAlias = true; typeface = Typeface.DEFAULT_BOLD }
+    private val scratchPath = Path()
+
     private fun drawCalibrationWarning(canvas: Canvas, radius: Float) {
-        val warningPaint = Paint().apply {
+        warningPaint.apply {
             color = if (currentThemeIndex == 2) Color.GREEN else Color.RED
             textSize = 28f
-            textAlign = Paint.Align.CENTER
-            isAntiAlias = true
             alpha = (127 + 128 * sin(SystemClock.elapsedRealtime() * 0.008f)).toInt().coerceIn(0, 255)
-            typeface = Typeface.DEFAULT_BOLD
         }
         
         // Draw Figure-8 path above the text
@@ -648,7 +652,8 @@ class CompassView @JvmOverloads constructor(
         val markerOuterY = (markerInnerY - markerHeight)
         val markerWidth = (radius * 0.10f)
         
-        val path = Path()
+        val path = scratchPath
+        path.reset()
         path.moveTo(0f, markerOuterY)
         path.lineTo(-(markerWidth / 2f), markerInnerY)
         path.lineTo((markerWidth / 2f), markerInnerY)
@@ -661,7 +666,8 @@ class CompassView @JvmOverloads constructor(
         val markerHeight = (radius * 0.1f)
         val markerInnerY = (markerOuterY + markerHeight)
         val markerWidth = (radius * 0.12f)
-        val path = Path()
+        val path = scratchPath
+        path.reset()
         path.moveTo(0f, markerOuterY)
         path.lineTo(-(markerWidth / 2f), markerInnerY)
         path.lineTo((markerWidth / 2f), markerInnerY)
