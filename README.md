@@ -2,6 +2,8 @@
 
 **Navigate with Precision: A Feature-Rich Compass for Your Pixel Watch**
 
+**Version 2.0** (`versionCode` 20) · package `com.compass_cat` · Wear OS 5 and later, including the Pixel Watch 3
+
 ![PXL_20250406_182111445](https://github.com/user-attachments/assets/a3d6b1aa-3940-434d-b3b9-5f9453deb1e4)
 ![PXL_20250406_124152110](https://github.com/user-attachments/assets/a20b2a29-474e-4036-bc27-ce80ed535ecd)
 
@@ -14,46 +16,51 @@ If Compass Cat brings value to your adventures, please consider making a small c
 **Send support via PayPal, Zelle, or Interac to:**
 `aschiuta@gmail.com`
 
+## Install
+
+Download [CompassCat-2.0.apk](https://github.com/va3fod/compass_cat/releases/download/v2.0/CompassCat-2.0.apk) from the [v2.0 release](https://github.com/va3fod/compass_cat/releases/tag/v2.0).
+
+Connect the watch with wireless debugging, then install or replace the current app:
+
+    adb install -r CompassCat-2.0.apk
+
+The package id is `com.compass_cat`. If a copy from before the rename is still on the watch, remove that old app:
+
+    adb uninstall com.compass_gpt
+
 ## Key Features
 
-*   **Accurate Compass:** Displays a clear compass rose with a primary needle indicating North.
-*   **Magnetic & True North Toggle:** Easily switch between Magnetic North and True North references by tapping the mode indicator icon (🐾/🐈).
-*   **Battery Optimized:** Significant performance improvements in v1.2 with lower sensor sampling rates and adaptive GPS frequency.
-*   **Ambient Mode Support:** High-contrast grayscale UI for Always-On Display, protecting your screen from burn-in while saving battery.
-*   **Rotating Bezel for Target Bearing:** Use your watch's crown to rotate the bezel and set a desired bearing.
-*   **"Go-To" / Waypoint Needle:** 
-    *   The **Yellow Needle** always points towards your set **Waypoint**.
-    *   If no waypoint is set, it points towards the fixed 12 o'clock bearing marker.
-*   **Theme Cycle (Day/Night/NVG):** Three distinct themes to preserve vision in all conditions:
-    *   **Normal:** Standard white/black theme.
-    *   **Tactical Red:** All-red theme for preserving night vision.
-    *   **NVG Green:** High-contrast green "Night Vision Goggle" style.
-*   **Comprehensive GPS Data Readouts:**
-    *   **BRG (Bearing):** Current bearing set on the bezel relative to the top marker.
-    *   **Spd / Alt:** Current speed (km/h) and altitude (m).
-    *   **Lat / Lon:** Real-time GPS coordinates for emergency reporting.
-    *   **Decl:** Current magnetic declination at your location.
-*   **Level Bubble / Clinometer:** A visual bubble level on the right side of the display.
-*   **Calibration Warning:** A prominent figure-8 icon and "CALIBRATE" prompt appear when sensors detect interference.
+*   **Compass rose:** N, E, S, and W with degree ticks. The crown rotates the bezel, and **BRG** is that bezel bearing.
+*   **Both norths at once:** A **red triangle** marks Magnetic North. A **blue triangle** marks True North, offset by the local declination. Neither marker is hidden.
+*   **Reference toggle:** Tap the cat icon to switch the bearing reference. **🐈** means headings are magnetic (`°M`). **🐾** means headings are true (`°T`). The BRG color follows that choice.
+*   **Waypoint needle:** After you save a waypoint, the **yellow needle** points along the true bearing to it. With no waypoint saved, that needle is hidden. The fixed marker at 12 o'clock is the bezel bearing index, not a waypoint.
+*   **Themes:** Long-press the center to cycle **Normal** (white and black), **Tactical Red**, and **NVG Green**.
+*   **GPS readouts:** Speed (km/h), altitude (m), local time, magnetic declination, and latitude / longitude.
+*   **Level bubble:** A clinometer on the right side of the face.
+*   **Calibration warning:** A figure-8 and **CALIBRATE (8)** appear when the rotation sensor is unreliable.
+*   **Ambient mode:** Always-on display uses a grayscale face with simplified ticks and the text readouts. Live north markers stay hidden in ambient mode so a stale heading is not shown.
+*   **Battery use:** The rotation sensor runs at the UI sampling rate, GPS updates every 15 seconds while the app is active, and GPS slows to once a minute in ambient mode.
+*   **Callsign screen:** Long-press the cat icon for 2 seconds to show **VA3FOD**, the app version (read from the build, currently **v2.0**), and support details. Double-tap to return to the compass.
+*   **Squirrel Chase:** Double-tap the cat icon on the compass to start the easter egg.
 
 ## How to Use
 
-1.  **Main Compass:**
-    *   **Red Needle** = Magnetic North.
-    *   **Blue Needle** = True North.
-    *   **Yellow Needle** = Your Waypoint (or straight up if none set).
+1.  **Main compass:**
+    *   **Red triangle** = Magnetic North.
+    *   **Blue triangle** = True North.
+    *   **Yellow needle** = saved waypoint. It is drawn only after a waypoint is set.
 
-2.  **Interaction Model (2-Second Long Presses):**
-    *   **Long-Press Center**: Cycle Themes (Normal → Red → Green).
-    *   **Long-Press Edge/Bezel**: Set Waypoint to your current location.
-    *   **Long-Press Cat Icon**: Show Callsign **"VA3FOD"** and the current **App Version** (stays for 2s after release).
+2.  **Two-second long presses:**
+    *   **Center:** cycle themes (Normal, then Red, then Green).
+    *   **Edge / bezel:** save a waypoint at your current location.
+    *   **Cat icon:** open the callsign screen. It stays up until you double-tap.
 
-3.  **Cat Icon Taps:**
-    *   **Single Tap**: Toggle **True North** (🐾) vs **Magnetic North** (🐈).
-    *   **Double Tap**: Start the **Squirrel Chase** Easter Egg.
+3.  **Cat icon taps, on the compass:**
+    *   **Single tap:** toggle magnetic (`°M`, 🐈) and true (`°T`, 🐾) reference.
+    *   **Double tap:** start **Squirrel Chase**.
 
 4.  **Calibration:**
-    *   If you see the figure-8 animation or "CALIBRATE (8)", move your watch in a large figure-8 motion in the air until it disappears.
+    *   If you see the figure-8 or **CALIBRATE (8)**, move the watch through a large figure-8 until the warning clears.
 
 ## Technology Stack
 
@@ -65,10 +72,12 @@ If Compass Cat brings value to your adventures, please consider making a small c
 ## Changelog
 
 ### v2.0
-*   **Version 2.0**: The on-watch callsign screen, Gradle `versionName`, and this README now all report 2.0 (`versionCode` 20). The displayed version is read from the build so those stay in step.
-*   **Waypoint needle**: The yellow needle uses the magnetic heading against the true bearing to the waypoint.
-*   **Ambient and lifecycle**: Always-on display and activity lifecycle handling stay consistent when the watch enters and leaves ambient mode.
-*   **App identity**: The installed package is `com.compass_cat`.
+*   **Version 2.0**: The on-watch callsign screen, Gradle `versionName`, and this README all report 2.0 (`versionCode` 20). The displayed version is read from the build.
+*   **North markers**: Magnetic North is the red triangle and True North is the blue triangle. Both stay visible. The cat icon only changes which one the BRG readout uses.
+*   **Waypoint needle**: The yellow needle is shown only after a waypoint is saved, and it uses true bearing against the true heading.
+*   **Callsign screen**: Long-press the cat icon to open it. It stays until a double-tap.
+*   **Ambient and lifecycle**: Always-on display keeps the grayscale readouts and hides live north markers while the rotation sensor is paused.
+*   **Package**: `com.compass_cat`. The installable APK is on the GitHub release.
 
 ### v1.8
 *   **Restored UI Rendering**: Fixed a logic error in `onDraw` that caused readouts and triangles to disappear in v1.7.
