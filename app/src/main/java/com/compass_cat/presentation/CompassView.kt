@@ -69,7 +69,7 @@ class CompassView @JvmOverloads constructor(
     private val magneticNorthSymbol = "🐈"
     private val trueNorthSymbol = "🐾"
     private val secretText = "VA3FOD"
-    private var versionText = "v1.8"
+    private var versionText = "v2.0"
     private val donationEmail = "aschiuta@gmail.com"
     private val squirrelSymbol = "🐿️"
 

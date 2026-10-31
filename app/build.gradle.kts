@@ -11,8 +11,8 @@ android {
         applicationId = "com.compass_cat"
         minSdk = 34
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.8"
+        versionCode = 20
+        versionName = "2.0"
 
     }
 
@@ -31,6 +31,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

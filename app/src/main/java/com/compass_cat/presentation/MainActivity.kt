@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.wear.ambient.AmbientLifecycleObserver
+import com.compass_cat.BuildConfig
 import com.compass_cat.R
 import com.google.android.gms.location.*
 import java.text.SimpleDateFormat
@@ -89,7 +90,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 
         val container = findViewById<FrameLayout>(R.id.compassContainer)
         compassView = CompassView(this)
-        compassView.setVersionInfo("v1.8")
+        compassView.setVersionInfo("v${BuildConfig.VERSION_NAME}")
         container.addView(
             compassView,
             FrameLayout.LayoutParams(

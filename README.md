@@ -64,6 +64,12 @@ If Compass Cat brings value to your adventures, please consider making a small c
 
 ## Changelog
 
+### v2.0
+*   **Version 2.0**: The on-watch callsign screen, Gradle `versionName`, and this README now all report 2.0 (`versionCode` 20). The displayed version is read from the build so those stay in step.
+*   **Waypoint needle**: The yellow needle uses the magnetic heading against the true bearing to the waypoint.
+*   **Ambient and lifecycle**: Always-on display and activity lifecycle handling stay consistent when the watch enters and leaves ambient mode.
+*   **App identity**: The installed package is `com.compass_cat`.
+
 ### v1.8
 *   **Restored UI Rendering**: Fixed a logic error in `onDraw` that caused readouts and triangles to disappear in v1.7.
 *   **Stability**: Verified all primary compass elements are correctly layered and visible.
