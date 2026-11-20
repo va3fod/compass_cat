@@ -8,15 +8,17 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.hardware.GeomagneticField
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
-import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.view.WindowCompat
 import androidx.wear.ambient.AmbientLifecycleObserver
 import com.compass_cat.BuildConfig
 import com.compass_cat.R
@@ -29,7 +31,6 @@ import java.util.TimeZone
 class MainActivity : ComponentActivity(), SensorEventListener {
 
     // --- Constants ---
-    private val locationPermissionRequestCode = 1001
     private val alpha = 0.25f
 
     // --- UI ---
@@ -46,7 +47,6 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private var currentPitchDeg = 0f
     private var currentRollDeg = 0f
     private var currentSensorAccuracy: Int = SensorManager.SENSOR_STATUS_UNRELIABLE
-    private var bezelRotationDeg = 0f
     private var isAmbient = false
     private var isResumedState = false
 
@@ -64,7 +64,11 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         override fun onEnterAmbient(ambientDetails: AmbientLifecycleObserver.AmbientDetails) {
             isAmbient = true
             updateBatteryOptimizationState()
-            compassView.setAmbientMode(enabled = true)
+            compassView.setAmbientMode(
+                enabled = true,
+                lowBit = ambientDetails.deviceHasLowBitAmbient,
+                burnInProtection = ambientDetails.burnInProtectionRequired,
+            )
         }
 
         override fun onExitAmbient() {
@@ -82,8 +86,31 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     
     private val ambientObserver = AmbientLifecycleObserver(this, ambientCallback)
 
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { grants ->
+        if (hasLocationPermission(grants)) {
+            startLocationUpdates()
+        } else {
+            Toast.makeText(
+                this,
+                "Location permission denied. GPS features disabled.",
+                Toast.LENGTH_LONG,
+            ).show()
+            updateCompassViewGpsData()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Wear OS 6+ draws edge to edge. Keep the compass on the full round display.
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes = window.attributes.apply {
+                layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+            }
+        }
         lifecycle.addObserver(ambientObserver)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_main)
@@ -91,6 +118,8 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         val container = findViewById<FrameLayout>(R.id.compassContainer)
         compassView = CompassView(this)
         compassView.setVersionInfo("v${BuildConfig.VERSION_NAME}")
+        compassView.isFocusable = true
+        compassView.isFocusableInTouchMode = true
         container.addView(
             compassView,
             FrameLayout.LayoutParams(
@@ -125,6 +154,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             }
         }
 
+        compassView.post { compassView.requestFocus() }
         updateCompassViewGpsData()
     }
 
@@ -136,6 +166,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         // FORCE a redraw when returning from a paused state (like dismissing a permission dialog)
         compassView.invalidate()
 
+        compassView.requestFocus()
         if (checkLocationPermission()) {
             requestLocationUpdatesInternal()
         }
@@ -165,16 +196,26 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     }
 
     private fun checkLocationPermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(
+        val fine = ActivityCompat.checkSelfPermission(
             this, Manifest.permission.ACCESS_FINE_LOCATION,
         ) == PackageManager.PERMISSION_GRANTED
+        val coarse = ActivityCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_COARSE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        return fine || coarse
+    }
+
+    private fun hasLocationPermission(grants: Map<String, Boolean>): Boolean {
+        return grants[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            grants[Manifest.permission.ACCESS_COARSE_LOCATION] == true
     }
 
     private fun requestLocationPermission() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            locationPermissionRequestCode,
+        locationPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ),
         )
     }
 
@@ -286,31 +327,10 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     }
 
     override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
-        if ((event?.action == MotionEvent.ACTION_SCROLL) &&
-            event.isFromSource(InputDevice.SOURCE_ROTARY_ENCODER)
-        ) {
-            val delta = -event.getAxisValue(MotionEvent.AXIS_SCROLL)
-            val sensitivity = 4.0f
-            bezelRotationDeg = ((((bezelRotationDeg + (delta * sensitivity)) % 360f) + 360f) % 360f)
-            compassView.setBezelRotation(bezelRotationDeg)
+        // Fallback when the crown event is not delivered to the focused compass view.
+        if (event != null && ::compassView.isInitialized && compassView.onRotaryScroll(event)) {
             return true
         }
         return super.onGenericMotionEvent(event)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults: IntArray,
-    ) {
-        @Suppress("DEPRECATION")
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == locationPermissionRequestCode) {
-            if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                startLocationUpdates()
-            } else {
-                Toast.makeText(this, "Location permission denied. GPS features disabled.", Toast.LENGTH_LONG).show()
-                updateCompassViewGpsData()
-            }
-        }
     }
 }

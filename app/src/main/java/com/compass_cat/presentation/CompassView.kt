@@ -12,6 +12,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.AttributeSet
 import android.view.HapticFeedbackConstants
+import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateInterpolator
@@ -95,6 +96,10 @@ class CompassView @JvmOverloads constructor(
     private val symbolClickPadding = 20f
     private var sensorAccuracyLevel: Int = SensorManager.SENSOR_STATUS_UNRELIABLE
     private var isAmbientMode = false
+    private var isLowBitAmbient = false
+    private var burnInProtectionRequired = false
+    private val rotarySensitivity = 4.0f
+    private var lastRotaryEventTime = Long.MIN_VALUE
 
     // Interaction State
     private var isHoldingSymbol = false
@@ -127,6 +132,8 @@ class CompassView @JvmOverloads constructor(
 
     init {
         isHapticFeedbackEnabled = true
+        isFocusable = true
+        isFocusableInTouchMode = true
         // Keep initialization light to prevent ANR/Black Screen
     }
 
@@ -171,11 +178,36 @@ class CompassView @JvmOverloads constructor(
         }
     }
 
-    fun setAmbientMode(enabled: Boolean) {
-        if (isAmbientMode != enabled) {
+    fun setAmbientMode(
+        enabled: Boolean,
+        lowBit: Boolean = false,
+        burnInProtection: Boolean = false,
+    ) {
+        val lowBitNow = enabled && lowBit
+        val burnInNow = enabled && burnInProtection
+        if (isAmbientMode != enabled || isLowBitAmbient != lowBitNow || burnInProtectionRequired != burnInNow) {
             isAmbientMode = enabled
+            isLowBitAmbient = lowBitNow
+            burnInProtectionRequired = burnInNow
             invalidate()
         }
+    }
+
+    fun onRotaryScroll(event: MotionEvent): Boolean {
+        if (event.action != MotionEvent.ACTION_SCROLL || !event.isFromSource(InputDevice.SOURCE_ROTARY_ENCODER)) {
+            return false
+        }
+        // The focused view and the activity can both observe one crown event.
+        if (event.eventTime == lastRotaryEventTime) return true
+        lastRotaryEventTime = event.eventTime
+        val delta = -event.getAxisValue(MotionEvent.AXIS_SCROLL)
+        setBezelRotation(bezelRotationDeg + (delta * rotarySensitivity))
+        return true
+    }
+
+    override fun onGenericMotionEvent(event: MotionEvent): Boolean {
+        if (onRotaryScroll(event)) return true
+        return super.onGenericMotionEvent(event)
     }
 
     fun setVersionInfo(version: String) {
@@ -491,7 +523,10 @@ class CompassView @JvmOverloads constructor(
         val cy = (height / 2f)
         canvas.translate(cx, cy)
 
-        val edgeRadius = min(cx, cy)
+        // Wear OS shifts ambient pixels when burn-in protection is on. Stay 10px inside
+        // the round edge so that shift does not clip the rose.
+        val burnInInset = if (burnInProtectionRequired) 10f else 0f
+        val edgeRadius = min(cx, cy) - burnInInset
         val mainRadius = (edgeRadius * 0.90f)
 
         // Update paint colors for Theme/Ambient
@@ -572,17 +607,27 @@ class CompassView @JvmOverloads constructor(
     private fun updatePaintsForTheme() {
         if (isAmbientMode) {
             val ambientColor = Color.WHITE
+            val ambientAntiAlias = !isLowBitAmbient
             bezelPaint.color = ambientColor
             bezelPaint.strokeWidth = 1f
+            bezelPaint.isAntiAlias = ambientAntiAlias
             readoutPaint.color = ambientColor
+            readoutPaint.isAntiAlias = ambientAntiAlias
             magneticReadoutPaint.color = ambientColor
+            magneticReadoutPaint.isAntiAlias = ambientAntiAlias
             trueNorthReadoutPaint.color = ambientColor
+            trueNorthReadoutPaint.isAntiAlias = ambientAntiAlias
             magneticNeedlePaint.color = ambientColor
             magneticNeedlePaint.strokeWidth = 4f
             trueNorthNeedlePaint.color = ambientColor
             trueNorthNeedlePaint.strokeWidth = 4f
             return
         }
+
+        bezelPaint.isAntiAlias = true
+        readoutPaint.isAntiAlias = true
+        magneticReadoutPaint.isAntiAlias = true
+        trueNorthReadoutPaint.isAntiAlias = true
 
         val primary = when (currentThemeIndex) {
             1 -> Color.RED

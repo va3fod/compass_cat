@@ -5,7 +5,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
 
-    <!-- Declare location permission if needed -->
+    <!-- Both are required on Android 12+ or the system ignores a fine-location request. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- Optional: If targeting Wear OS devices, declare the watch feature -->

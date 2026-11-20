@@ -1,13 +1,13 @@
-# Compass Cat for Wear OS
+# Compass Cat for the Pixel Watch 5
 
-**Navigate with Precision: A Feature-Rich Compass for Your Pixel Watch**
+**Navigate with Precision: A compass for the Pixel Watch 5**
 
-**Version 2.0** (`versionCode` 20) · package `com.compass_cat` · Wear OS 5 and later, including the Pixel Watch 3
+**Version 2.1** (`versionCode` 21) · package `com.compass_cat` · Wear OS 7 on the Pixel Watch 5, and Wear OS 5 or later on earlier watches
 
 ![PXL_20250406_182111445](https://github.com/user-attachments/assets/a3d6b1aa-3940-434d-b3b9-5f9453deb1e4)
 ![PXL_20250406_124152110](https://github.com/user-attachments/assets/a20b2a29-474e-4036-bc27-ce80ed535ecd)
 
-Compass Cat transforms your Google Pixel Watch (and other compatible Wear OS devices) into an advanced navigation tool. Designed for outdoor enthusiasts, hikers, and anyone needing reliable orientation, this app combines classic compass functionality with modern GPS data and intuitive controls.
+Compass Cat turns a Pixel Watch 5 into a navigation compass for the trail. It is built for both round sizes, 41 mm (408×408) and 45 mm (456×456), on Wear OS 7. The same build still runs on the Pixel Watch 3 and 4, and on other watches with Wear OS 5 or later.
 
 ## Support the Developer ☕
 
@@ -16,13 +16,22 @@ If Compass Cat brings value to your adventures, please consider making a small c
 **Send support via PayPal, Zelle, or Interac to:**
 `aschiuta@gmail.com`
 
+## Pixel Watch 5
+
+Compass Cat 2.1 targets Wear OS 7 (Android 17, API 37), the system on the Pixel Watch 5.
+
+*   **Both sizes:** 41 mm at 408×408 and 45 mm at 456×456. The face scales to the round display.
+*   **Crown:** Turn the crown to rotate the bezel. **BRG** is that bearing.
+*   **Location:** The watch asks for coarse and fine location together, which Wear OS 7 requires before GPS features work. Approximate location is enough for declination, speed, altitude, and a waypoint.
+*   **Ambient:** With the wrist down, the face switches to a low-power grayscale compass. On the Pixel Watch 5 OLED, burn-in protection keeps the rose slightly inside the round edge.
+
 ## Install
 
-Download [CompassCat-2.0.apk](https://github.com/va3fod/compass_cat/releases/download/v2.0/CompassCat-2.0.apk) from the [v2.0 release](https://github.com/va3fod/compass_cat/releases/tag/v2.0).
+Download [CompassCat-2.1.apk](https://github.com/va3fod/compass_cat/releases/download/v2.1/CompassCat-2.1.apk) from the [v2.1 release](https://github.com/va3fod/compass_cat/releases/tag/v2.1).
 
-Connect the watch with wireless debugging, then install or replace the current app:
+Connect the Pixel Watch 5 with wireless debugging, then install or replace the current app:
 
-    adb install -r CompassCat-2.0.apk
+    adb install -r CompassCat-2.1.apk
 
 The package id is `com.compass_cat`. If a copy from before the rename is still on the watch, remove that old app:
 
@@ -40,7 +49,7 @@ The package id is `com.compass_cat`. If a copy from before the rename is still o
 *   **Calibration warning:** A figure-8 and **CALIBRATE (8)** appear when the rotation sensor is unreliable.
 *   **Ambient mode:** Always-on display uses a grayscale face with simplified ticks and the text readouts. Live north markers stay hidden in ambient mode so a stale heading is not shown.
 *   **Battery use:** The rotation sensor runs at the UI sampling rate, GPS updates every 15 seconds while the app is active, and GPS slows to once a minute in ambient mode.
-*   **Callsign screen:** Long-press the cat icon for 2 seconds to show **VA3FOD**, the app version (read from the build, currently **v2.0**), and support details. Double-tap to return to the compass.
+*   **Callsign screen:** Long-press the cat icon for 2 seconds to show **VA3FOD**, the app version (read from the build, currently **v2.1**), and support details. Double-tap to return to the compass.
 *   **Squirrel Chase:** Double-tap the cat icon on the compass to start the easter egg.
 
 ## How to Use
@@ -65,11 +74,17 @@ The package id is `com.compass_cat`. If a copy from before the rename is still o
 ## Technology Stack
 
 *   **Language:** Kotlin
-*   **Platform:** Wear OS (Optimized for Google Pixel Watch 3)
+*   **Platform:** Pixel Watch 5 on Wear OS 7 (API 37). Also runs on Wear OS 5 and 6, including the Pixel Watch 3 and 4.
 *   **Sensors:** `TYPE_ROTATION_VECTOR`, GPS
 *   **UI:** Custom `View` drawing on `Canvas`
 
 ## Changelog
+
+### v2.1
+*   **Pixel Watch 5**: Targets Wear OS 7 (Android 17, API 37). Still runs on Wear OS 5 and 6, including the 41 mm (408×408) and 45 mm (456×456) round displays.
+*   **Location**: Requests coarse and fine location together, which Android 12 and later require before a fine-location grant. Approximate location is enough for declination and the waypoint.
+*   **Crown**: Rotary scroll is handled on the focused compass, with the same bezel sensitivity as v2.0.
+*   **Ambient**: Honors low-bit ambient (anti-aliasing off) and burn-in protection (the rose stays 10 px inside the round edge).
 
 ### v2.0
 *   **Version 2.0**: The on-watch callsign screen, Gradle `versionName`, and this README all report 2.0 (`versionCode` 20). The displayed version is read from the build.

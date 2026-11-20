@@ -5,14 +5,15 @@ plugins {
 
 android {
     namespace = "com.compass_cat"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.compass_cat"
+        // Wear OS 5 (API 34) through Wear OS 7 on Pixel Watch 5 (API 37).
         minSdk = 34
-        targetSdk = 35
-        versionCode = 20
-        versionName = "2.0"
+        targetSdk = 37
+        versionCode = 21
+        versionName = "2.1"
 
     }
 
@@ -48,7 +49,7 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(libs.core.splashscreen)
     implementation(libs.wear)
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation(libs.play.services.location)
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
