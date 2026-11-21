@@ -9,6 +9,8 @@
 
 Compass Cat turns a Pixel Watch 5 into a navigation compass for the trail. It is built for both round sizes, 41 mm (408×408) and 45 mm (456×456), on Wear OS 7. The same build still runs on the Pixel Watch 3 and 4, and on other watches with Wear OS 5 or later.
 
+More apps by Val: [Val apps hub](https://va3fod.github.io/)
+
 ## Support the Developer ☕
 
 If Compass Cat brings value to your adventures, please consider making a small contribution to help keep development going. Every little bit helps and means the world to me!
